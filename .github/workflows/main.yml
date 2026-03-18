@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Hello world action step
         id: hello
-        uses: vasekhodina/hello-world-javascript-action
+        uses: vasekhodina/hello-world-javascript-action@f699364cd3220ad5f54974db64f7db23507ce891
         with:
           who-to-greet: Mona the Octocat
 
