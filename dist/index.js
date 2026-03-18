@@ -1,37 +1,58 @@
-import * as os from 'os';
-import os__default, { EOL } from 'os';
-import * as crypto from 'crypto';
-import * as fs from 'fs';
-import { promises, existsSync, readFileSync } from 'fs';
-import 'path';
-import http from 'http';
-import https from 'https';
-import 'net';
-import require$$1 from 'tls';
-import events$1 from 'events';
-import 'assert';
-import require$$6 from 'util';
-import require$$0$1 from 'node:assert';
-import require$$0$3 from 'node:net';
-import require$$2 from 'node:http';
-import require$$0$2 from 'node:stream';
-import require$$0 from 'node:buffer';
-import require$$0$4 from 'node:util';
-import require$$7 from 'node:querystring';
-import require$$8 from 'node:events';
-import require$$0$5 from 'node:diagnostics_channel';
-import require$$5 from 'node:tls';
-import require$$1$2 from 'node:zlib';
-import require$$5$1 from 'node:perf_hooks';
-import require$$8$1 from 'node:util/types';
-import require$$1$1 from 'node:worker_threads';
-import require$$1$3 from 'node:url';
-import require$$5$2 from 'node:async_hooks';
-import require$$1$4 from 'node:console';
-import require$$1$5 from 'node:dns';
-import require$$5$3 from 'string_decoder';
-import 'child_process';
-import 'timers';
+'use strict';
+
+var os = require('os');
+var crypto = require('crypto');
+var fs = require('fs');
+require('path');
+var http = require('http');
+var https = require('https');
+require('net');
+var require$$1 = require('tls');
+var events$1 = require('events');
+require('assert');
+var require$$6 = require('util');
+var require$$0$1 = require('node:assert');
+var require$$0$3 = require('node:net');
+var require$$2 = require('node:http');
+var require$$0$2 = require('node:stream');
+var require$$0 = require('node:buffer');
+var require$$0$4 = require('node:util');
+var require$$7 = require('node:querystring');
+var require$$8 = require('node:events');
+var require$$0$5 = require('node:diagnostics_channel');
+var require$$5 = require('node:tls');
+var require$$1$2 = require('node:zlib');
+var require$$5$1 = require('node:perf_hooks');
+var require$$8$1 = require('node:util/types');
+var require$$1$1 = require('node:worker_threads');
+var require$$1$3 = require('node:url');
+var require$$5$2 = require('node:async_hooks');
+var require$$1$4 = require('node:console');
+var require$$1$5 = require('node:dns');
+var require$$5$3 = require('string_decoder');
+require('child_process');
+require('timers');
+
+function _interopNamespaceDefault(e) {
+    var n = Object.create(null);
+    if (e) {
+        Object.keys(e).forEach(function (k) {
+            if (k !== 'default') {
+                var d = Object.getOwnPropertyDescriptor(e, k);
+                Object.defineProperty(n, k, d.get ? d : {
+                    enumerable: true,
+                    get: function () { return e[k]; }
+                });
+            }
+        });
+    }
+    n.default = e;
+    return Object.freeze(n);
+}
+
+var os__namespace = /*#__PURE__*/_interopNamespaceDefault(os);
+var crypto__namespace = /*#__PURE__*/_interopNamespaceDefault(crypto);
+var fs__namespace = /*#__PURE__*/_interopNamespaceDefault(fs);
 
 // We use any as a valid input type
 /* eslint-disable @typescript-eslint/no-explicit-any */
@@ -103,7 +124,7 @@ function toCommandProperties(annotationProperties) {
  */
 function issueCommand(command, properties, message) {
     const cmd = new Command(command, properties, message);
-    process.stdout.write(cmd.toString() + os.EOL);
+    process.stdout.write(cmd.toString() + os__namespace.EOL);
 }
 const CMD_STRING = '::';
 class Command {
@@ -162,15 +183,15 @@ function issueFileCommand(command, message) {
     if (!filePath) {
         throw new Error(`Unable to find environment variable for file command ${command}`);
     }
-    if (!fs.existsSync(filePath)) {
+    if (!fs__namespace.existsSync(filePath)) {
         throw new Error(`Missing file at path: ${filePath}`);
     }
-    fs.appendFileSync(filePath, `${toCommandValue(message)}${os.EOL}`, {
+    fs__namespace.appendFileSync(filePath, `${toCommandValue(message)}${os__namespace.EOL}`, {
         encoding: 'utf8'
     });
 }
 function prepareKeyValueMessage(key, value) {
-    const delimiter = `ghadelimiter_${crypto.randomUUID()}`;
+    const delimiter = `ghadelimiter_${crypto__namespace.randomUUID()}`;
     const convertedValue = toCommandValue(value);
     // These should realistically never happen, but just in case someone finds a
     // way to exploit uuid generation let's not allow keys or values that contain
@@ -181,7 +202,7 @@ function prepareKeyValueMessage(key, value) {
     if (convertedValue.includes(delimiter)) {
         throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter}"`);
     }
-    return `${key}<<${delimiter}${os.EOL}${convertedValue}${os.EOL}${delimiter}`;
+    return `${key}<<${delimiter}${os__namespace.EOL}${convertedValue}${os__namespace.EOL}${delimiter}`;
 }
 
 var commonjsGlobal = typeof globalThis !== 'undefined' ? globalThis : typeof window !== 'undefined' ? window : typeof global !== 'undefined' ? global : typeof self !== 'undefined' ? self : {};
@@ -27956,7 +27977,7 @@ var MediaTypes;
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const { access, appendFile, writeFile } = promises;
+const { access, appendFile, writeFile } = fs.promises;
 
 (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -27967,10 +27988,10 @@ const { access, appendFile, writeFile } = promises;
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-const { chmod, copyFile, lstat, mkdir, open, readdir, rename, rm, rmdir, stat, symlink, unlink } = fs.promises;
+const { chmod, copyFile, lstat, mkdir, open, readdir, rename, rm, rmdir, stat, symlink, unlink } = fs__namespace.promises;
 // export const {open} = 'fs'
 process.platform === 'win32';
-fs.constants.O_RDONLY;
+fs__namespace.constants.O_RDONLY;
 
 (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -28013,8 +28034,8 @@ process.platform === 'win32';
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-os__default.platform();
-os__default.arch();
+os.platform();
+os.arch();
 
 (undefined && undefined.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
@@ -28064,7 +28085,7 @@ function setOutput(name, value) {
     if (filePath) {
         return issueFileCommand('OUTPUT', prepareKeyValueMessage(name, value));
     }
-    process.stdout.write(os.EOL);
+    process.stdout.write(os__namespace.EOL);
     issueCommand('set-output', { name }, toCommandValue(value));
 }
 //-----------------------------------------------------------------------
@@ -28092,7 +28113,7 @@ function error(message, properties = {}) {
  * @param message info message
  */
 function info(message) {
-    process.stdout.write(message + os.EOL);
+    process.stdout.write(message + os__namespace.EOL);
 }
 
 class Context {
@@ -28103,12 +28124,12 @@ class Context {
         var _a, _b, _c;
         this.payload = {};
         if (process.env.GITHUB_EVENT_PATH) {
-            if (existsSync(process.env.GITHUB_EVENT_PATH)) {
-                this.payload = JSON.parse(readFileSync(process.env.GITHUB_EVENT_PATH, { encoding: 'utf8' }));
+            if (fs.existsSync(process.env.GITHUB_EVENT_PATH)) {
+                this.payload = JSON.parse(fs.readFileSync(process.env.GITHUB_EVENT_PATH, { encoding: 'utf8' }));
             }
             else {
                 const path = process.env.GITHUB_EVENT_PATH;
-                process.stdout.write(`GITHUB_EVENT_PATH ${path} does not exist${EOL}`);
+                process.stdout.write(`GITHUB_EVENT_PATH ${path} does not exist${os.EOL}`);
             }
         }
         this.eventName = process.env.GITHUB_EVENT_NAME;
