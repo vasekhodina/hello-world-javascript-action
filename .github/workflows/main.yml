@@ -1,0 +1,20 @@
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  hello_world_job:
+    name: A job to say hello
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Hello world action step
+        id: hello
+        uses: octocat/hello-world-javascript-action@1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b
+        with:
+          who-to-greet: Mona the Octocat
+
+      # Use the output from the `hello` step
+      - name: Get the output time
+        run: echo "The time was ${{ steps.hello.outputs.time }}"
