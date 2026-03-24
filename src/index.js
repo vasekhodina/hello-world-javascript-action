@@ -1,9 +1,6 @@
 import * as core from "@actions/core";
 
-/**
- * @param {string} labelsInput
- * @returns {string[]}
- */
+/** @param {string} labelsInput */
 function parseLabels(labelsInput) {
   return labelsInput
     .split(",")
@@ -14,7 +11,6 @@ function parseLabels(labelsInput) {
 /**
  * @param {string} apiKey
  * @param {"bearer" | "x-api-key"} mode
- * @returns {Record<string, string>}
  */
 function authHeaders(apiKey, mode) {
   if (mode === "x-api-key") {
@@ -23,11 +19,22 @@ function authHeaders(apiKey, mode) {
   return { Authorization: `Bearer ${apiKey}` };
 }
 
+/** @param {string} text */
+function looksLikeHtml(text) {
+  const t = text.trimStart();
+  return (
+    t.startsWith("<!DOCTYPE") ||
+    t.startsWith("<html") ||
+    t.startsWith("<!--")
+  );
+}
+
 async function run() {
   const apiKey = core.getInput("api-key", { required: true });
   const labelsInput = core.getInput("labels", { required: true });
-  const apiUrl = core.getInput("api-url") || "https://api.aiva.works/v1/batches";
-  const authMode = core.getInput("auth-header") || "x-api-key";
+  const apiUrl =
+    core.getInput("api-url") || "https://api.aiva.works/v1/batches";
+  const authMode = core.getInput("auth-header") || "bearer";
 
   core.setSecret(apiKey);
 
@@ -44,13 +51,7 @@ async function run() {
     );
   }
 
-  const body = {
-      "name": "test",
-      "labels": [
-        "test-batch",
-      ],
-      "parallel": true,
-    };
+  const body = { labels };
 
   const res = await fetch(apiUrl, {
     method: "POST",
@@ -63,6 +64,19 @@ async function run() {
   });
 
   const responseText = await res.text();
+  const contentType = res.headers.get("content-type") || "";
+
+  if (
+    contentType.includes("text/html") ||
+    looksLikeHtml(responseText)
+  ) {
+    const hint =
+      "The response looks like a web page (HTML), not JSON. " +
+      "app.aiva.works is the browser app; the REST API is usually on another host " +
+      "(e.g. https://api.aiva.works/v1/batches). Set the api-url input to the API base URL from your AIVA tenant or docs.";
+    throw new Error(`${hint}\n\nRequest URL: ${apiUrl}\nHTTP ${res.status}`);
+  }
+
   core.setOutput("status-code", String(res.status));
   core.setOutput("response-body", responseText);
 
