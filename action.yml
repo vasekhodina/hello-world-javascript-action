@@ -17,7 +17,7 @@ inputs:
   auth-header:
     description: How to send the API key — bearer (Authorization Bearer) or x-api-key (X-API-Key header)
     required: false
-    default: bearer
+    default: x-api-key
 
 outputs:
   status-code:
