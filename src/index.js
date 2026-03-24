@@ -26,7 +26,7 @@ function authHeaders(apiKey, mode) {
 async function run() {
   const apiKey = core.getInput("api-key", { required: true });
   const labelsInput = core.getInput("labels", { required: true });
-  const apiUrl = core.getInput("api-url") || "https://app.aiva.works/v1/batches";
+  const apiUrl = core.getInput("api-url") || "https://api.aiva.works/v1/batches";
   const authMode = core.getInput("auth-header") || "bearer";
 
   core.setSecret(apiKey);
