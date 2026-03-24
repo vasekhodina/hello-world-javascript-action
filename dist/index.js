@@ -28180,7 +28180,7 @@ function authHeaders(apiKey, mode) {
 async function run() {
   const apiKey = getInput("api-key", { required: true });
   const labelsInput = getInput("labels", { required: true });
-  const apiUrl = getInput("api-url") || "https://app.aiva.works/v1/batches";
+  const apiUrl = getInput("api-url") || "https://api.aiva.works/v1/batches";
   const authMode = getInput("auth-header") || "bearer";
 
   setSecret(apiKey);
