@@ -28198,7 +28198,13 @@ async function run() {
     );
   }
 
-  const body = { labels };
+  const body = {
+      "name": "test",
+      "labels": [
+        "test-batch",
+      ],
+      "parallel": true,
+    };
 
   const res = await fetch(apiUrl, {
     method: "POST",
