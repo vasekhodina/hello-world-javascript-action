@@ -28193,34 +28193,10 @@ async function run() {
   });
 
   const responseText = await res.text();
-  const contentType = res.headers.get("content-type") || "";
-
-  if (
-    contentType.includes("text/html") ||
-    looksLikeHtml(responseText)
-  ) {
-    const hint =
-      "The response is HTML (usually a Next.js 404), not the AIVA JSON API. " +
-      "Do not use https://app.aiva.works/... for api-url — that host is the web app. " +
-      "Omit api-url or use https://api.aiva.works/v1/batches (or the API host your tenant provides).";
-    throw new Error(`${hint}\n\nRequest URL: ${apiUrl}\nHTTP ${res.status}`);
-  }
+  res.headers.get("content-type") || "";
 
   setOutput("status-code", String(res.status));
   setOutput("response-body", responseText);
-
-  if (!res.ok) {
-    if (looksLikeHtml(responseText)) {
-      throw new Error(
-        "AIVA API returned an error with an HTML body (wrong host or path). " +
-          "Use https://api.aiva.works/v1/batches, not app.aiva.works.\n\n" +
-          `HTTP ${res.status} ${res.statusText}\nRequest URL: ${apiUrl}`,
-      );
-    }
-    throw new Error(
-      `AIVA API request failed: ${res.status} ${res.statusText}\n${responseText}`,
-    );
-  }
 
   info(`AIVA batch request accepted (${res.status})`);
   if (responseText) {
