@@ -28181,7 +28181,7 @@ async function run() {
   const apiKey = getInput("api-key", { required: true });
   const labelsInput = getInput("labels", { required: true });
   const apiUrl = getInput("api-url") || "https://api.aiva.works/v1/batches";
-  const authMode = getInput("auth-header") || "bearer";
+  const authMode = getInput("auth-header") || "x-api-key";
 
   setSecret(apiKey);
 
