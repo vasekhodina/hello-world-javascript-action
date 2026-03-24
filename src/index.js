@@ -21,19 +21,47 @@ function authHeaders(apiKey, mode) {
 
 /** @param {string} text */
 function looksLikeHtml(text) {
-  const t = text.trimStart();
+  const t = text.replace(/^\uFEFF/, "").trimStart();
+  const head = t.slice(0, 800).toLowerCase();
   return (
     t.startsWith("<!DOCTYPE") ||
+    t.startsWith("<!doctype") ||
     t.startsWith("<html") ||
-    t.startsWith("<!--")
+    t.startsWith("<!--") ||
+    head.includes("<html") ||
+    head.includes("_next/static") ||
+    head.includes("next-error-h1")
   );
+}
+
+/**
+ * app.aiva.works serves the Next.js app; API lives on api.aiva.works (same path).
+ * @param {string} raw
+ */
+function normalizeApiUrl(raw) {
+  const trimmed = raw.trim();
+  try {
+    const u = new URL(trimmed);
+    if (u.hostname === "app.aiva.works") {
+      u.hostname = "api.aiva.works";
+      core.warning(
+        "api-url pointed at app.aiva.works (the browser app / docs site), not the REST API. " +
+          "Using api.aiva.works instead. To avoid this, omit api-url or set https://api.aiva.works/v1/batches.",
+      );
+      return u.toString();
+    }
+    return trimmed;
+  } catch {
+    throw new Error(`invalid api-url: ${raw}`);
+  }
 }
 
 async function run() {
   const apiKey = core.getInput("api-key", { required: true });
   const labelsInput = core.getInput("labels", { required: true });
-  const apiUrl =
-    core.getInput("api-url") || "https://api.aiva.works/v1/batches";
+  const apiUrl = normalizeApiUrl(
+    core.getInput("api-url") || "https://api.aiva.works/v1/batches",
+  );
   const authMode = core.getInput("auth-header") || "bearer";
 
   core.setSecret(apiKey);
@@ -71,9 +99,9 @@ async function run() {
     looksLikeHtml(responseText)
   ) {
     const hint =
-      "The response looks like a web page (HTML), not JSON. " +
-      "app.aiva.works is the browser app; the REST API is usually on another host " +
-      "(e.g. https://api.aiva.works/v1/batches). Set the api-url input to the API base URL from your AIVA tenant or docs.";
+      "The response is HTML (usually a Next.js 404), not the AIVA JSON API. " +
+      "Do not use https://app.aiva.works/... for api-url — that host is the web app. " +
+      "Omit api-url or use https://api.aiva.works/v1/batches (or the API host your tenant provides).";
     throw new Error(`${hint}\n\nRequest URL: ${apiUrl}\nHTTP ${res.status}`);
   }
 
@@ -81,6 +109,13 @@ async function run() {
   core.setOutput("response-body", responseText);
 
   if (!res.ok) {
+    if (looksLikeHtml(responseText)) {
+      throw new Error(
+        "AIVA API returned an error with an HTML body (wrong host or path). " +
+          "Use https://api.aiva.works/v1/batches, not app.aiva.works.\n\n" +
+          `HTTP ${res.status} ${res.statusText}\nRequest URL: ${apiUrl}`,
+      );
+    }
     throw new Error(
       `AIVA API request failed: ${res.status} ${res.statusText}\n${responseText}`,
     );
