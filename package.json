@@ -1,7 +1,7 @@
 {
   "name": "hello-world-javascript-action",
   "version": "1.0.0",
-  "description": "For testing of custom github actions",
+  "description": "GitHub Action to start an AIVA test batch (POST /v1/batches)",
   "main": "index.js",
   "scripts": {
     "build": "rollup --config rollup.config.mjs",
@@ -20,9 +20,7 @@
   },
   "homepage": "https://github.com/vasekhodina/hello-world-javascript-action#readme",
   "dependencies": {
-    "@actions/core": "^3.0.0",
-    "@actions/github": "^9.0.0",
-    "build": "^0.1.4"
+    "@actions/core": "^3.0.0"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^29.0.2",

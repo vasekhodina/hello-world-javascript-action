@@ -1,15 +1,27 @@
-name: Hello World
-description: Greet someone and record the time
+name: AIVA batch test run
+description: Start an AIVA test batch via POST /v1/batches (see https://app.aiva.works/docs/api/batches-run-batch)
 
 inputs:
-  who-to-greet: # id of input
-    description: Who to greet
+  api-key:
+    description: AIVA API key (store in a repository or organization secret)
     required: true
-    default: World
+  labels:
+    description: Comma-separated labels used to select tests for the batch (e.g. "smoke,regression")
+    required: true
+  api-url:
+    description: Full URL of the run-batch endpoint
+    required: false
+    default: https://app.aiva.works/v1/batches
+  auth-header:
+    description: How to send the API key — bearer (Authorization Bearer) or x-api-key (X-API-Key header)
+    required: false
+    default: bearer
 
 outputs:
-  time: # id of output
-    description: The time we greeted you
+  status-code:
+    description: HTTP status from the AIVA API (202 when the batch was accepted)
+  response-body:
+    description: Response body from the API (JSON text)
 
 runs:
   using: node24

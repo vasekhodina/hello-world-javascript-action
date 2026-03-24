@@ -4,17 +4,21 @@ on:
       - main
 
 jobs:
-  hello_world_job:
-    name: A job to say hello
+  aiva_batch_job:
+    name: Run AIVA batch (example)
     runs-on: ubuntu-latest
 
     steps:
-      - name: Hello world action step
-        id: hello
-        uses: vasekhodina/hello-world-javascript-action@574bc7e80de218537d86152df0f5d2ebe8fa416f
-        with:
-          who-to-greet: Mona the Octocat
+      - uses: actions/checkout@v4
 
-      # Use the output from the `hello` step
-      - name: Get the output time
-        run: echo "The time was ${{ steps.hello.outputs.time }}"
+      - name: Start AIVA batch
+        id: aiva
+        uses: ./
+        with:
+          api-key: ${{ secrets.AIVA_API_KEY }}
+          labels: smoke
+
+      - name: Show API response
+        run: |
+          echo "HTTP status: ${{ steps.aiva.outputs.status-code }}"
+          echo "Body: ${{ steps.aiva.outputs.response-body }}"
