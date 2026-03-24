@@ -1,3 +1,5 @@
+name: Run AIVA Test Batch
+
 on:
   workflow_dispatch:
     inputs:
