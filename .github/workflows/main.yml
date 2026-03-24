@@ -1,6 +1,14 @@
 on:
-  workflow_dispatch: 
-    
+  workflow_dispatch:
+    inputs:
+      AIVA_API_KEY:
+        description: "API Key for your account from AIVA"
+        type: string
+        default: ""
+      LABELS:
+        description: "Label of the tests that should be run"
+        type: string
+        default: "" 
 
 jobs:
   aiva_batch_job:
@@ -14,8 +22,8 @@ jobs:
         id: aiva
         uses: ./
         with:
-          api-key: ${{ secrets.AIVA_API_KEY }}
-          labels: smoke
+          api-key: ${{ inputs.AIVA_API_KEY }}
+          labels: ${{ inputs.LABELS}}
 
       - name: Show API response
         run: |
