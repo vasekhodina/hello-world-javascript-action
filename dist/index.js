@@ -28139,6 +28139,13 @@ function setFailed(message) {
     error(message);
 }
 /**
+ * Writes debug message to user log
+ * @param message debug message
+ */
+function debug(message) {
+    issueCommand('debug', {}, message);
+}
+/**
  * Adds an error issue
  * @param message error issue message. Errors will be converted to string via toString()
  * @param properties optional properties to add to the annotation.
@@ -28167,6 +28174,7 @@ function sleep(s) {
 }
 
 function testBatchStillRunning(batchStatusResponse) {
+  debug(batchStatusResponse);
   return batchStatusResponse.result.summary.pending > 0;
 }
 
@@ -28215,6 +28223,7 @@ async function run() {
   info(batchID);
 
   do {
+    info("Waiting for test batch to finish.");
     await sleep(30);
     const res = await fetch(apiUrl+ "/" + batchID, {
       method: "GET",
@@ -28224,10 +28233,11 @@ async function run() {
       },
     });
 
-    const responseText = await res.text();
-    setOutput("status-code", String(res.status));
-    setOutput("response-body", responseText);
-  } while (testBatchStillRunning(res));
+    const batchStatusResText= await res.text();
+    JSON.parse(batchStatusResText);
+  } while (testBatchStillRunning(batchStatusJSON));
+  setOutput("status-code", String(res.status));
+  setOutput("response-body", batchStatusResText);
 }
 
 run().catch((error) => {

@@ -24,6 +24,7 @@ function sleep(s) {
 }
 
 function testBatchStillRunning(batchStatusResponse) {
+  core.debug(batchStatusResponse);
   return batchStatusResponse.result.summary.pending > 0;
 }
 
