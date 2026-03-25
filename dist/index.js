@@ -28207,7 +28207,7 @@ async function run() {
   info(batchID);
 
   try {
-    const res = await fetch(apiUrl+ "/" + batchId, {
+    const res = await fetch(apiUrl+ "/" + batchID, {
       method: "GET",
       headers: {
         "Accept": "application/json",
