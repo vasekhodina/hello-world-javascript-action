@@ -54,10 +54,29 @@ async function run() {
 
   core.setOutput("status-code", String(res.status));
   core.setOutput("response-body", responseText);
+  const response = JSON.parse(responseText);
+  const batchID = response["testBatchId"];
 
   core.info(`AIVA batch request accepted (${res.status})`);
   if (responseText) {
     core.info(responseText);
+  }
+  core.info(batchID);
+
+  try {
+    const res = await fetch(apiUrl+ "/" + batchId, {
+      method: "GET",
+      headers: {
+        "Accept": "application/json",
+        "X-API-Key": apiKey,
+      },
+    });
+
+    const responseText = await res.text();
+    core.setOutput("status-code", String(res.status));
+    core.setOutput("response-body", responseText);
+  } catch (error) {
+    core.setFailed(error.message);
   }
 }
 

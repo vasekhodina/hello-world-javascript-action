@@ -28197,10 +28197,29 @@ async function run() {
 
   setOutput("status-code", String(res.status));
   setOutput("response-body", responseText);
+  const response = JSON.parse(responseText);
+  const batchID = response["testBatchId"];
 
   info(`AIVA batch request accepted (${res.status})`);
   if (responseText) {
     info(responseText);
+  }
+  info(batchID);
+
+  try {
+    const res = await fetch(apiUrl+ "/" + batchId, {
+      method: "GET",
+      headers: {
+        "Accept": "application/json",
+        "X-API-Key": apiKey,
+      },
+    });
+
+    const responseText = await res.text();
+    setOutput("status-code", String(res.status));
+    setOutput("response-body", responseText);
+  } catch (error) {
+    setFailed(error.message);
   }
 }
 
