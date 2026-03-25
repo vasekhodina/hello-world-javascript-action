@@ -85,7 +85,9 @@ async function run() {
     });
 
     const batchStatusResText= await res.text();
+    core.info(batchStatusResText);
     batchStatusJSON = JSON.parse(batchStatusResText);
+    core.info(batchStatusJSON);
   } while (testBatchStillRunning(batchStatusJSON));
   core.setOutput("status-code", String(res.status));
   core.setOutput("response-body", batchStatusResText);

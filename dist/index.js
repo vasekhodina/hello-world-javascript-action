@@ -28235,7 +28235,9 @@ async function run() {
     });
 
     const batchStatusResText= await res.text();
+    info(batchStatusResText);
     batchStatusJSON = JSON.parse(batchStatusResText);
+    info(batchStatusJSON);
   } while (testBatchStillRunning(batchStatusJSON));
   setOutput("status-code", String(res.status));
   setOutput("response-body", batchStatusResText);
