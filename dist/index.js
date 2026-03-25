@@ -28162,6 +28162,14 @@ function parseLabels(labelsInput) {
     .filter(Boolean);
 }
 
+function sleep(s) {
+  return new Promise((resolve) => setTimeout(resolve, s * 1000));
+}
+
+function testBatchStillRunning(batchStatusResponse) {
+  return batchStatusResponse.result.summary.pending > 0;
+}
+
 async function run() {
   const apiKey = getInput("api-key", { required: true });
   const labelsInput = getInput("labels", { required: true });
@@ -28206,7 +28214,8 @@ async function run() {
   }
   info(batchID);
 
-  try {
+  do {
+    await sleep(30);
     const res = await fetch(apiUrl+ "/" + batchID, {
       method: "GET",
       headers: {
@@ -28218,9 +28227,7 @@ async function run() {
     const responseText = await res.text();
     setOutput("status-code", String(res.status));
     setOutput("response-body", responseText);
-  } catch (error) {
-    setFailed(error.message);
-  }
+  } while (testBatchStillRunning(res));
 }
 
 run().catch((error) => {

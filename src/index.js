@@ -19,6 +19,14 @@ function authHeaders(apiKey, mode) {
   return { Authorization: `Bearer ${apiKey}` };
 }
 
+function sleep(s) {
+  return new Promise((resolve) => setTimeout(resolve, s * 1000));
+}
+
+function testBatchStillRunning(batchStatusResponse) {
+  return batchStatusResponse.result.summary.pending > 0;
+}
+
 async function run() {
   const apiKey = core.getInput("api-key", { required: true });
   const labelsInput = core.getInput("labels", { required: true });
@@ -63,7 +71,9 @@ async function run() {
   }
   core.info(batchID);
 
-  try {
+  do {
+    core.info("Waiting for test batch to finish.")
+    await sleep(30)
     const res = await fetch(apiUrl+ "/" + batchID, {
       method: "GET",
       headers: {
@@ -73,11 +83,9 @@ async function run() {
     });
 
     const responseText = await res.text();
-    core.setOutput("status-code", String(res.status));
-    core.setOutput("response-body", responseText);
-  } catch (error) {
-    core.setFailed(error.message);
-  }
+  } while (testBatchStillRunning(res));
+  core.setOutput("status-code", String(res.status));
+  core.setOutput("response-body", responseText);
 }
 
 run().catch((error) => {
