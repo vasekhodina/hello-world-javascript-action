@@ -28175,7 +28175,7 @@ function sleep(s) {
 
 function testBatchStillRunning(batchStatusResponse) {
   debug(batchStatusResponse);
-  return batchStatusResponse.result.summary.pending > 0;
+  return batchStatusResponse.results.summary.pending > 0;
 }
 
 async function run() {
