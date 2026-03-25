@@ -82,10 +82,11 @@ async function run() {
       },
     });
 
-    const responseText = await res.text();
-  } while (testBatchStillRunning(res));
+    const batchStatusResText= await res.text();
+    const batchStatusJSON = JSON.parse(batchStatusResText);
+  } while (testBatchStillRunning(batchStatusJSON));
   core.setOutput("status-code", String(res.status));
-  core.setOutput("response-body", responseText);
+  core.setOutput("response-body", batchStatusResText);
 }
 
 run().catch((error) => {
