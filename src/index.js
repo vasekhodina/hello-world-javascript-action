@@ -32,6 +32,7 @@ async function run() {
   const apiKey = core.getInput("api-key", { required: true });
   const labelsInput = core.getInput("labels", { required: true });
   const apiUrl = core.getInput("api-url")
+  const batchRunUrl = "https://app.aiva.works/scheduling/"
 
   core.setSecret(apiKey);
   
@@ -70,9 +71,11 @@ async function run() {
   if (responseText) {
     core.info(responseText);
   }
-  core.info(batchID);
+  core.notice("Link to executed test batch: " + batchRunUrl + batchID);
 
   let batchStatusJSON = null;
+  let batchStatusResText= null;
+  
   do {
     core.info("Waiting for test batch to finish.")
     await sleep(30)
@@ -89,6 +92,7 @@ async function run() {
     batchStatusJSON = JSON.parse(batchStatusResText);
     core.info(batchStatusJSON);
   } while (testBatchStillRunning(batchStatusJSON));
+  
   core.setOutput("status-code", String(res.status));
   core.setOutput("response-body", batchStatusResText);
 }

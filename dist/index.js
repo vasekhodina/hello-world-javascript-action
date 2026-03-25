@@ -28154,6 +28154,14 @@ function error(message, properties = {}) {
     issueCommand('error', toCommandProperties(properties), message instanceof Error ? message.toString() : message);
 }
 /**
+ * Adds a notice issue
+ * @param message notice issue message. Errors will be converted to string via toString()
+ * @param properties optional properties to add to the annotation.
+ */
+function notice(message, properties = {}) {
+    issueCommand('notice', toCommandProperties(properties), message instanceof Error ? message.toString() : message);
+}
+/**
  * Writes info to log with console.log.
  * @param message info message
  */
@@ -28182,6 +28190,7 @@ async function run() {
   const apiKey = getInput("api-key", { required: true });
   const labelsInput = getInput("labels", { required: true });
   const apiUrl = getInput("api-url");
+  const batchRunUrl = "https://app.aiva.works/scheduling/";
 
   setSecret(apiKey);
   
@@ -28220,9 +28229,11 @@ async function run() {
   if (responseText) {
     info(responseText);
   }
-  info(batchID);
+  notice("Link to executed test batch: " + batchRunUrl + batchID);
 
   let batchStatusJSON = null;
+  let batchStatusResText= null;
+  
   do {
     info("Waiting for test batch to finish.");
     await sleep(30);
@@ -28239,6 +28250,7 @@ async function run() {
     batchStatusJSON = JSON.parse(batchStatusResText);
     info(batchStatusJSON);
   } while (testBatchStillRunning(batchStatusJSON));
+  
   setOutput("status-code", String(res.status));
   setOutput("response-body", batchStatusResText);
 }
