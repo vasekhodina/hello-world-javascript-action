@@ -72,6 +72,7 @@ async function run() {
   }
   core.info(batchID);
 
+  let batchStatusJSON = null;
   do {
     core.info("Waiting for test batch to finish.")
     await sleep(30)
@@ -84,7 +85,7 @@ async function run() {
     });
 
     const batchStatusResText= await res.text();
-    const batchStatusJSON = JSON.parse(batchStatusResText);
+    batchStatusJSON = JSON.parse(batchStatusResText);
   } while (testBatchStillRunning(batchStatusJSON));
   core.setOutput("status-code", String(res.status));
   core.setOutput("response-body", batchStatusResText);

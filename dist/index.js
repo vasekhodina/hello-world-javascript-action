@@ -28222,6 +28222,7 @@ async function run() {
   }
   info(batchID);
 
+  let batchStatusJSON = null;
   do {
     info("Waiting for test batch to finish.");
     await sleep(30);
@@ -28234,7 +28235,7 @@ async function run() {
     });
 
     const batchStatusResText= await res.text();
-    JSON.parse(batchStatusResText);
+    batchStatusJSON = JSON.parse(batchStatusResText);
   } while (testBatchStillRunning(batchStatusJSON));
   setOutput("status-code", String(res.status));
   setOutput("response-body", batchStatusResText);
