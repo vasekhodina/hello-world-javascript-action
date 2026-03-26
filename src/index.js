@@ -114,6 +114,7 @@ async function run() {
   const {id, size} = await artifact.uploadArtifact(
       'batch-status',
       [batchStatusFilepath],
+      ".",
       {
         retentionDays: 10
       }
