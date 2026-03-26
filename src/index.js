@@ -86,7 +86,7 @@ async function run() {
   if (responseText) {
     core.info(responseText);
   }
-  core.notice("See the <a href='" + batchRunUrl + batchID + "'>batch results</a> in AIVA. ");
+  core.summary.addLink("See the batch results in AIVA. ", batchRunUrl + batchID);
 
   let batchStatusJSON = null;
   let batchStatusResText= null;
