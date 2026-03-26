@@ -6,9 +6,8 @@ import {DefaultArtifactClient} from '@actions/artifact';
 /** @param {string} labelsInput */
 function parseLabels(labelsInput) {
   return labelsInput
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
+    .split(";")
+    .map((s) => s.trim());
 }
 
 /**
@@ -87,7 +86,7 @@ async function run() {
   if (responseText) {
     core.info(responseText);
   }
-  core.notice("Link to executed test batch: " + batchRunUrl + batchID);
+  core.notice("See the <a href='" + batchRunUrl + batchID + "'>batch results</a> in AIVA. ");
 
   let batchStatusJSON = null;
   let batchStatusResText= null;

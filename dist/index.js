@@ -117740,9 +117740,8 @@ If the error persists, please check whether Actions and API requests are operati
 /** @param {string} labelsInput */
 function parseLabels(labelsInput) {
   return labelsInput
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
+    .split(";")
+    .map((s) => s.trim());
 }
 
 function sleep(s) {
@@ -117810,7 +117809,7 @@ async function run() {
   if (responseText) {
     info(responseText);
   }
-  notice("Link to executed test batch: " + batchRunUrl + batchID);
+  notice("See the <a href='" + batchRunUrl + batchID + "'>batch results</a> in AIVA. ");
 
   let batchStatusJSON = null;
   let batchStatusResText= null;
