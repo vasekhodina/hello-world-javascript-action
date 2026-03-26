@@ -32,6 +32,8 @@ var require$$1$5 = require('node:dns');
 var require$$5$3 = require('string_decoder');
 require('child_process');
 require('timers');
+var promises = require('node:fs/promises');
+require('@actions/artifact');
 
 function _interopNamespaceDefault(e) {
     var n = Object.create(null);
@@ -28186,11 +28188,23 @@ function testBatchStillRunning(batchStatusResponse) {
   return batchStatusResponse.results.summary.pending > 0;
 }
 
+/** @param {unknown} batchStatusJSON
+ * @param batchStatusFilepath
+ */
+async function writeBatchStatusJsonToFile(batchStatusJSON, batchStatusFilepath) {
+  await promises.writeFile(
+    batchStatusFilepath,
+    JSON.stringify(batchStatusJSON, null, 2),
+    "utf8",
+  );
+}
+
 async function run() {
   const apiKey = getInput("api-key", { required: true });
   const labelsInput = getInput("labels", { required: true });
   const apiUrl = getInput("api-url");
   const batchRunUrl = "https://app.aiva.works/scheduling/";
+  const batchStatusFilepath = "./batch-status.json";
 
   setSecret(apiKey);
   
@@ -28250,6 +28264,18 @@ async function run() {
     batchStatusJSON = JSON.parse(batchStatusResText);
     info(batchStatusJSON);
   } while (testBatchStillRunning(batchStatusJSON));
+
+  await writeBatchStatusJsonToFile(batchStatusJSON, batchStatusFilepath);
+
+  const {id, size} = await artifact.uploadArtifact(
+      'batch-status',
+      [batchStatusFilepath],
+      {
+        retentionDays: 10
+      }
+  );
+
+  console.notice(`Created artifact with batch status, id: ${id} (bytes: ${size}`); 
   
   setOutput("status-code", String(res.status));
   setOutput("response-body", batchStatusResText);

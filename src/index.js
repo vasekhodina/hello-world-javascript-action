@@ -1,4 +1,7 @@
 import * as core from "@actions/core";
+import { writeFile } from "node:fs/promises";
+import {DefaultArtifactClient} from '@actions/artifact';
+
 
 /** @param {string} labelsInput */
 function parseLabels(labelsInput) {
@@ -28,11 +31,23 @@ function testBatchStillRunning(batchStatusResponse) {
   return batchStatusResponse.results.summary.pending > 0;
 }
 
+/** @param {unknown} batchStatusJSON
+ * @param batchStatusFilepath
+ */
+async function writeBatchStatusJsonToFile(batchStatusJSON, batchStatusFilepath) {
+  await writeFile(
+    batchStatusFilepath,
+    JSON.stringify(batchStatusJSON, null, 2),
+    "utf8",
+  );
+}
+
 async function run() {
   const apiKey = core.getInput("api-key", { required: true });
   const labelsInput = core.getInput("labels", { required: true });
   const apiUrl = core.getInput("api-url")
   const batchRunUrl = "https://app.aiva.works/scheduling/"
+  const batchStatusFilepath = "./batch-status.json"
 
   core.setSecret(apiKey);
   
@@ -92,6 +107,18 @@ async function run() {
     batchStatusJSON = JSON.parse(batchStatusResText);
     core.info(batchStatusJSON);
   } while (testBatchStillRunning(batchStatusJSON));
+
+  await writeBatchStatusJsonToFile(batchStatusJSON, batchStatusFilepath);
+
+  const {id, size} = await artifact.uploadArtifact(
+      'batch-status',
+      [batchStatusFilepath],
+      {
+        retentionDays: 10
+      }
+  )
+
+  console.notice(`Created artifact with batch status, id: ${id} (bytes: ${size}`) 
   
   core.setOutput("status-code", String(res.status));
   core.setOutput("response-body", batchStatusResText);
