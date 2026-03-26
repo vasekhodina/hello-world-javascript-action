@@ -118108,6 +118108,7 @@ async function run() {
   
   setOutput("status-code", String(res.status));
   setOutput("response-body", batchStatusResText);
+  summary.write();
 }
 
 run().catch((error) => {

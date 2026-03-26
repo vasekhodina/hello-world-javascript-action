@@ -123,6 +123,7 @@ async function run() {
   
   core.setOutput("status-code", String(res.status));
   core.setOutput("response-body", batchStatusResText);
+  core.summary.write()
 }
 
 run().catch((error) => {
