@@ -51,7 +51,7 @@ async function run() {
 
   core.setSecret(apiKey);
   
-  core.info("Execuring test batch containing test with these labels:" + labels);
+  core.info("Executing test batch containing test with these labels:" + labels);
   
   const res = await fetch(apiUrl, {
     method: "POST",
@@ -60,11 +60,11 @@ async function run() {
       "Accept": "application/json",
       "X-API-Key": apiKey,
     },
-    body: JSON.stringify({
+    body: {
       "name": "Github Action Batch",
       "labels": labels,
       "parallel": true,
-    }),
+    },
   });
 
   const responseText = await res.text();
@@ -78,7 +78,7 @@ async function run() {
   if (responseText) {
     core.info(responseText);
   }
-  core.summary.addLink("See the batch results in AIVA. ", aivaBatchUrli + batchID);
+  core.summary.addLink("See the batch results in AIVA. ", aivaBatchUrl + batchID);
 
   let batchStatusJSON = null;
   let batchStatusResText= null;
