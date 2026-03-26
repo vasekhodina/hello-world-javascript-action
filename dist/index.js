@@ -118033,11 +118033,12 @@ async function run() {
   const artifact = new DefaultArtifactClient();
 
   const apiUrl = "https://api.aiva.works/v1/batches";
-  const batchRunUrl = "https://app.aiva.works/scheduling/";
   const batchStatusFilepath = "./batch-ctrf.json";
   const labels = parseLabels(labelsInput);
 
   setSecret(apiKey);
+  
+  info("Execuring test batch containing test with these labels:" + labels);
   
   const res = await fetch(apiUrl, {
     method: "POST",
@@ -118064,14 +118065,14 @@ async function run() {
   if (responseText) {
     info(responseText);
   }
-  summary.addLink("See the batch results in AIVA. ", batchRunUrl + batchID);
+  summary.addLink("See the batch results in AIVA. ", aivaBatchUrli + batchID);
 
   let batchStatusJSON = null;
   
   do {
     info("Waiting for test batch to finish.");
     await sleep(30);
-    const res = await fetch(apiUrl+ "/" + batchID, {
+    const res = await fetch(apiUrl + "/" + batchID, {
       method: "GET",
       headers: {
         "Accept": "application/json",
