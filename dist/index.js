@@ -118048,11 +118048,11 @@ async function run() {
       "Accept": "application/json",
       "X-API-Key": apiKey,
     },
-    body: {
+    body: JSON.stringify({
       "name": "Github Action Batch",
       "labels": labels,
       "parallel": true,
-    },
+    }),
   });
 
   const responseText = await res.text();
