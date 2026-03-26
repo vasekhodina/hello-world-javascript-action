@@ -118039,7 +118039,7 @@ async function run() {
 
   setSecret(apiKey);
   
-  info("Executing test batch containing test with these labels:" + labels);
+  info("Executing test batch containing tests labeled with: " + labels);
   
   const res = await fetch(apiUrl, {
     method: "POST",
@@ -118060,7 +118060,7 @@ async function run() {
   setOutput("status-code", String(res.status));
   setOutput("response-body", responseText);
   JSON.parse(responseText);
-  const batchID = res["testBatchId"];
+  const batchID = await res.json()["testBatchId"];
 
   info(`AIVA batch request accepted (${res.status})`);
   if (responseText) {
