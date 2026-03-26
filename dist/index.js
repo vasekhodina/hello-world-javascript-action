@@ -117843,7 +117843,7 @@ async function run() {
       }
   );
 
-  console.notice(`Created artifact with batch status, id: ${id} (bytes: ${size}`); 
+  notice(`Created artifact with batch status, id: ${id} (bytes: ${size}`); 
   
   setOutput("status-code", String(res.status));
   setOutput("response-body", batchStatusResText);

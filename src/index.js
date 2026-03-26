@@ -120,7 +120,7 @@ async function run() {
       }
   )
 
-  console.notice(`Created artifact with batch status, id: ${id} (bytes: ${size}`) 
+  core.notice(`Created artifact with batch status, id: ${id} (bytes: ${size}`) 
   
   core.setOutput("status-code", String(res.status));
   core.setOutput("response-body", batchStatusResText);
