@@ -48,6 +48,7 @@ async function run() {
   const apiUrl = core.getInput("api-url")
   const batchRunUrl = "https://app.aiva.works/scheduling/"
   const batchStatusFilepath = "./batch-status.json"
+  const artifact = new DefaultArtifactClient()
 
   core.setSecret(apiKey);
   
