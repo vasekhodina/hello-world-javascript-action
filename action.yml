@@ -8,16 +8,6 @@ inputs:
   labels:
     description: Comma-separated labels used to select tests for the batch (e.g. "smoke,regression")
     required: true
-  api-url:
-    description: >
-      Full URL of POST /v1/batches. Do not use app.aiva.works — that is the web UI and returns HTML 404 for API paths.
-      Use your AIVA API host (often https://api.aiva.works/v1/batches or the URL from your tenant).
-    required: false
-    default: https://api.aiva.works/v1/batches
-  auth-header:
-    description: How to send the API key — bearer (Authorization Bearer) or x-api-key (X-API-Key header)
-    required: false
-    default: x-api-key
 
 outputs:
   status-code:

@@ -29205,14 +29205,6 @@ function warning(message, properties = {}) {
     issueCommand('warning', toCommandProperties(properties), message instanceof Error ? message.toString() : message);
 }
 /**
- * Adds a notice issue
- * @param message notice issue message. Errors will be converted to string via toString()
- * @param properties optional properties to add to the annotation.
- */
-function notice(message, properties = {}) {
-    issueCommand('notice', toCommandProperties(properties), message instanceof Error ? message.toString() : message);
-}
-/**
  * Writes info to log with console.log.
  * @param message info message
  */
@@ -118001,9 +117993,16 @@ If the error persists, please check whether Actions and API requests are operati
 
 /** @param {string} labelsInput */
 function parseLabels(labelsInput) {
-  return labelsInput
+  const labels = labelsInput
     .split(";")
     .map((s) => s.trim());
+  
+  if (labels.length === 0) {
+    throw new Error(
+        'labels must contain at least one label after splitting by semicolon(e.g. "nightly")',
+    );
+  }
+  return labels;
 }
 
 function sleep(s) {
@@ -118015,7 +118014,8 @@ function testBatchStillRunning(batchStatusResponse) {
   return batchStatusResponse.results.summary.pending > 0;
 }
 
-/** @param {unknown} batchStatusJSON
+/**
+ * @param batchStatusJSON
  * @param batchStatusFilepath
  */
 async function writeBatchStatusJsonToFile(batchStatusJSON, batchStatusFilepath) {
@@ -118029,26 +118029,16 @@ async function writeBatchStatusJsonToFile(batchStatusJSON, batchStatusFilepath) 
 async function run() {
   const apiKey = getInput("api-key", { required: true });
   const labelsInput = getInput("labels", { required: true });
-  const apiUrl = getInput("api-url");
-  const batchRunUrl = "https://app.aiva.works/scheduling/";
-  const batchStatusFilepath = "./batch-status.json";
+  
   const artifact = new DefaultArtifactClient();
+
+  const apiUrl = "https://api.aiva.works/v1/batches";
+  const batchRunUrl = "https://app.aiva.works/scheduling/";
+  const batchStatusFilepath = "./batch-ctrf.json";
+  const labels = parseLabels(labelsInput);
 
   setSecret(apiKey);
   
-  const labels = parseLabels(labelsInput);
-  if (labels.length === 0) {
-    throw new Error(
-      'labels must contain at least one label after splitting by comma (e.g. "smoke")',
-    );
-  }
-
-  const body = {
-    "name": null,
-    "labels": ["test-batch"],
-    "parallel": true,
-  };
-
   const res = await fetch(apiUrl, {
     method: "POST",
     headers: {
@@ -118056,16 +118046,19 @@ async function run() {
       "Accept": "application/json",
       "X-API-Key": apiKey,
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify({
+      "name": "Github Action Batch",
+      "labels": labels,
+      "parallel": true,
+    }),
   });
 
   const responseText = await res.text();
-  res.headers.get("content-type") || "";
 
   setOutput("status-code", String(res.status));
   setOutput("response-body", responseText);
-  const response = JSON.parse(responseText);
-  const batchID = response["testBatchId"];
+  JSON.parse(responseText);
+  const batchID = res["testBatchId"];
 
   info(`AIVA batch request accepted (${res.status})`);
   if (responseText) {
@@ -118074,7 +118067,6 @@ async function run() {
   summary.addLink("See the batch results in AIVA. ", batchRunUrl + batchID);
 
   let batchStatusJSON = null;
-  let batchStatusResText= null;
   
   do {
     info("Waiting for test batch to finish.");
@@ -118095,19 +118087,12 @@ async function run() {
 
   await writeBatchStatusJsonToFile(batchStatusJSON, batchStatusFilepath);
 
-  const {id, size} = await artifact.uploadArtifact(
+  await artifact.uploadArtifact(
       'batch-status',
       [batchStatusFilepath],
       ".",
-      {
-        retentionDays: 10
-      }
   );
-
-  notice(`Created artifact with batch status, id: ${id} (bytes: ${size}`); 
   
-  setOutput("status-code", String(res.status));
-  setOutput("response-body", batchStatusResText);
   summary.write();
 }
 

@@ -5,20 +5,16 @@ import {DefaultArtifactClient} from '@actions/artifact';
 
 /** @param {string} labelsInput */
 function parseLabels(labelsInput) {
-  return labelsInput
+  const labels = labelsInput
     .split(";")
     .map((s) => s.trim());
-}
-
-/**
- * @param {string} apiKey
- * @param {"bearer" | "x-api-key"} mode
- */
-function authHeaders(apiKey, mode) {
-  if (mode === "x-api-key") {
-    return { "X-API-Key": apiKey };
+  
+  if (labels.length === 0) {
+    throw new Error(
+        'labels must contain at least one label after splitting by semicolon(e.g. "nightly")',
+    );
   }
-  return { Authorization: `Bearer ${apiKey}` };
+  return labels;
 }
 
 function sleep(s) {
@@ -30,7 +26,8 @@ function testBatchStillRunning(batchStatusResponse) {
   return batchStatusResponse.results.summary.pending > 0;
 }
 
-/** @param {unknown} batchStatusJSON
+/**
+ * @param batchStatusJSON
  * @param batchStatusFilepath
  */
 async function writeBatchStatusJsonToFile(batchStatusJSON, batchStatusFilepath) {
@@ -44,26 +41,16 @@ async function writeBatchStatusJsonToFile(batchStatusJSON, batchStatusFilepath) 
 async function run() {
   const apiKey = core.getInput("api-key", { required: true });
   const labelsInput = core.getInput("labels", { required: true });
-  const apiUrl = core.getInput("api-url")
-  const batchRunUrl = "https://app.aiva.works/scheduling/"
-  const batchStatusFilepath = "./batch-status.json"
+  
   const artifact = new DefaultArtifactClient()
+
+  const apiUrl = "https://api.aiva.works/v1/batches"
+  const batchRunUrl = "https://app.aiva.works/scheduling/"
+  const batchStatusFilepath = "./batch-ctrf.json"
+  const labels = parseLabels(labelsInput);
 
   core.setSecret(apiKey);
   
-  const labels = parseLabels(labelsInput);
-  if (labels.length === 0) {
-    throw new Error(
-      'labels must contain at least one label after splitting by comma (e.g. "smoke")',
-    );
-  }
-
-  const body = {
-    "name": null,
-    "labels": ["test-batch"],
-    "parallel": true,
-  }
-
   const res = await fetch(apiUrl, {
     method: "POST",
     headers: {
@@ -71,16 +58,19 @@ async function run() {
       "Accept": "application/json",
       "X-API-Key": apiKey,
     },
-    body: JSON.stringify(body),
+    body: JSON.stringify({
+      "name": "Github Action Batch",
+      "labels": labels,
+      "parallel": true,
+    }),
   });
 
   const responseText = await res.text();
-  const contentType = res.headers.get("content-type") || "";
 
   core.setOutput("status-code", String(res.status));
   core.setOutput("response-body", responseText);
   const response = JSON.parse(responseText);
-  const batchID = response["testBatchId"];
+  const batchID = res["testBatchId"];
 
   core.info(`AIVA batch request accepted (${res.status})`);
   if (responseText) {
@@ -110,19 +100,12 @@ async function run() {
 
   await writeBatchStatusJsonToFile(batchStatusJSON, batchStatusFilepath);
 
-  const {id, size} = await artifact.uploadArtifact(
+  await artifact.uploadArtifact(
       'batch-status',
       [batchStatusFilepath],
       ".",
-      {
-        retentionDays: 10
-      }
   )
-
-  core.notice(`Created artifact with batch status, id: ${id} (bytes: ${size}`) 
   
-  core.setOutput("status-code", String(res.status));
-  core.setOutput("response-body", batchStatusResText);
   core.summary.write()
 }
 
