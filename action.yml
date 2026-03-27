@@ -6,14 +6,8 @@ inputs:
     description: AIVA API key (store in a repository or organization secret)
     required: true
   labels:
-    description: Comma-separated labels used to select tests for the batch (e.g. "smoke,regression")
+    description: Semicolon-separated labels used to select tests for the batch (e.g. "smoke,regression")
     required: true
-
-outputs:
-  status-code:
-    description: HTTP status from the AIVA API (202 when the batch was accepted)
-  response-body:
-    description: Response body from the API (JSON text)
 
 runs:
   using: node24

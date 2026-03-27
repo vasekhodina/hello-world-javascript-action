@@ -2,10 +2,9 @@
   "name": "hello-world-javascript-action",
   "version": "1.0.0",
   "description": "GitHub Action to start an AIVA test batch (POST /v1/batches)",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "build": "rollup --config rollup.config.mjs",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "rollup --config rollup.config.mjs"
   },
   "repository": {
     "type": "git",
