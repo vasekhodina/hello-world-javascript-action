@@ -72,11 +72,7 @@ async function executeBatch(apiUrl, apiKey, labels) {
   core.info(`AIVA batch request accepted (${res.status})`);
 
   const responseJSON = await res.json();
-  if (!responseJSON.ok) {
-    core.setFailed("Error getting test batch execution results")
-    core.info(responseJSON.stringify())
-  }
-  else return responseJSON["testBatchId"];
+  return responseJSON["testBatchId"];
 }
 
 /**
