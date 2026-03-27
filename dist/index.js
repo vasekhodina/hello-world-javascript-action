@@ -117974,7 +117974,8 @@ function sleep(s) {
  */
 function testBatchStillRunning(batchStatusResponse) {
   debug(batchStatusResponse);
-  return batchStatusResponse.results.summary.pending > 0;
+  const pending = batchStatusResponse?.results?.summary?.pending ?? 0;
+  return pending > 0;
 }
 
 /**
@@ -118012,10 +118013,19 @@ async function executeBatch(apiUrl, apiKey, labels) {
     }),
   });
 
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`AIVA batch request failed (${res.status}): ${errText}`);
+  }
+
   info(`AIVA batch request accepted (${res.status})`);
 
   const responseJSON = await res.json();
-  return responseJSON["testBatchId"];
+  const batchId = responseJSON.testBatchId;
+  if (typeof batchId !== "string" || batchId.length === 0) {
+    throw new Error("AIVA batch response missing testBatchId");
+  }
+  return batchId;
 }
 
 /**
@@ -118031,7 +118041,10 @@ async function getBatchStatus(apiUrl, apiKey, batchId) {
       "X-API-Key": apiKey,
     },
   });
-  await res.json();
+  if (!res.ok) {
+    const errText = await res.text();
+    throw new Error(`Batch status request failed (${res.status}): ${errText}`);
+  }
   return await res.json();
 }
 
@@ -118060,6 +118073,7 @@ async function run(){
     info("Waiting for test batch to finish.");
     await sleep(batchWaitTimeout);
     batchStatus = await getBatchStatus(apiUrl, apiKey, batchId);
+    info(JSON.stringify(batchStatus));
   } while (testBatchStillRunning(batchStatus));
 
   await writeBatchStatusJsonToFile(batchStatus, batchStatusFilepath);
