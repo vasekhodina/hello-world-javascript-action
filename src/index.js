@@ -130,9 +130,10 @@ async function run(){
     core.info("Waiting for test batch to finish.")
     await sleep(batchWaitTimeout);
     batchStatus = await getBatchStatus(apiUrl, apiKey, batchId);
-    core.info(JSON.stringify(batchStatus));
+    core.debug(JSON.stringify(batchStatus));
   } while (testBatchStillRunning(batchStatus));
 
+  core.summary.addRaw(JSON.stringify(batchStatus));
   await writeBatchStatusJsonToFile(batchStatus, batchStatusFilepath);
   await artifact.uploadArtifact(
       'batch-status',
