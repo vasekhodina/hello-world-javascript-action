@@ -118017,7 +118017,7 @@ async function executeBatch(apiUrl, apiKey, labels) {
   const responseJSON = await res.json();
   if (!responseJSON.ok) {
     setFailed("Error getting test batch execution results");
-    info(responseJSON);
+    info(responseJSON.stringify());
   }
   else return responseJSON["testBatchId"];
 }
