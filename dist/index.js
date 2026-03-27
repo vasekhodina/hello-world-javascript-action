@@ -118031,12 +118031,8 @@ async function getBatchStatus(apiUrl, apiKey, batchId) {
       "X-API-Key": apiKey,
     },
   });
-  const response = await res.json();
-  if (!response.ok) {
-    setFailed("Error getting test batch status");
-    info(response.text());
-  }
-  else return await res.json();
+  await res.json();
+  return await res.json();
 }
 
 /**

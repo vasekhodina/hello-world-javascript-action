@@ -89,11 +89,7 @@ async function getBatchStatus(apiUrl, apiKey, batchId) {
     },
   });
   const response = await res.json();
-  if (!response.ok) {
-    core.setFailed("Error getting test batch status")
-    core.info(response.text())
-  }
-  else return await res.json();
+  return await res.json();
 }
 
 /**
