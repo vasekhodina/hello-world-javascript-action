@@ -194,36 +194,6 @@ function escapeProperty(s) {
         .replace(/,/g, '%2C');
 }
 
-// For internal use, subject to change.
-// We use any as a valid input type
-/* eslint-disable @typescript-eslint/no-explicit-any */
-function issueFileCommand(command, message) {
-    const filePath = process.env[`GITHUB_${command}`];
-    if (!filePath) {
-        throw new Error(`Unable to find environment variable for file command ${command}`);
-    }
-    if (!fs__namespace.existsSync(filePath)) {
-        throw new Error(`Missing file at path: ${filePath}`);
-    }
-    fs__namespace.appendFileSync(filePath, `${toCommandValue(message)}${os__namespace.EOL}`, {
-        encoding: 'utf8'
-    });
-}
-function prepareKeyValueMessage(key, value) {
-    const delimiter = `ghadelimiter_${crypto__namespace.randomUUID()}`;
-    const convertedValue = toCommandValue(value);
-    // These should realistically never happen, but just in case someone finds a
-    // way to exploit uuid generation let's not allow keys or values that contain
-    // the delimiter.
-    if (key.includes(delimiter)) {
-        throw new Error(`Unexpected input: name should not contain the delimiter "${delimiter}"`);
-    }
-    if (convertedValue.includes(delimiter)) {
-        throw new Error(`Unexpected input: value should not contain the delimiter "${delimiter}"`);
-    }
-    return `${key}<<${delimiter}${os__namespace.EOL}${convertedValue}${os__namespace.EOL}${delimiter}`;
-}
-
 function getProxyUrl(reqUrl) {
     const usingSsl = reqUrl.protocol === 'https:';
     if (checkBypass(reqUrl)) {
@@ -29153,21 +29123,6 @@ function getInput(name, options) {
         return val;
     }
     return val.trim();
-}
-/**
- * Sets the value of an output.
- *
- * @param     name     name of the output to set
- * @param     value    value to store. Non-string values will be converted to a string via JSON.stringify
- */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function setOutput(name, value) {
-    const filePath = process.env['GITHUB_OUTPUT'] || '';
-    if (filePath) {
-        return issueFileCommand('OUTPUT', prepareKeyValueMessage(name, value));
-    }
-    process.stdout.write(os__namespace.EOL);
-    issueCommand('set-output', { name }, toCommandValue(value));
 }
 //-----------------------------------------------------------------------
 // Results
@@ -118026,21 +117981,15 @@ async function writeBatchStatusJsonToFile(batchStatusJSON, batchStatusFilepath) 
   );
 }
 
-async function run() {
-  const apiKey = getInput("api-key", { required: true });
-  const labelsInput = getInput("labels", { required: true });
-  
-  const artifact = new DefaultArtifactClient();
-
-  const apiUrl = "https://api.aiva.works/v1/batches";
-  const aivaBatchUrl= "https://app.aiva.works/scheduling/";
-  const batchStatusFilepath = "./batch-ctrf.json";
-  const labels = parseLabels(labelsInput);
-
-  setSecret(apiKey);
-  
+/**
+ * @param {Request | string | URL} apiUrl
+ * @param {string} apiKey
+ * @param {string[]} labels
+ * @returns {string} batchID of the newly created batch in AIVA
+ */
+async function executeBatch(apiUrl, apiKey, labels) {
   info("Executing test batch containing tests labeled with: " + labels);
-  
+
   const res = await fetch(apiUrl, {
     method: "POST",
     headers: {
@@ -118055,47 +118004,66 @@ async function run() {
     }),
   });
 
-  const responseText = await res.text();
-
-  setOutput("status-code", String(res.status));
-  setOutput("response-body", responseText);
-  JSON.parse(responseText);
-  const batchID = await res.json()["testBatchId"];
-
   info(`AIVA batch request accepted (${res.status})`);
-  if (responseText) {
-    info(responseText);
-  }
-  summary.addLink("See the batch results in AIVA. ", aivaBatchUrl + batchID);
 
-  let batchStatusJSON = null;
-  
+  const responseJSON = await res.json();
+  return responseJSON["testBatchId"];
+}
+
+/**
+ * @param {string} apiUrl
+ * @param {string} apiKey
+ * @param {string} batchId
+ */
+async function getBatchStatus(apiUrl, apiKey, batchId) {
+  const res = await fetch(apiUrl + "/" + batchId, {
+    method: "GET",
+    headers: {
+      "Accept": "application/json",
+      "X-API-Key": apiKey,
+    },
+  });
+  const batchStatus= await res.json();
+  info(batchStatus);
+  summary.addCodeBlock(batchStatus, 'json');
+  return batchStatus;
+}
+
+/**
+ * Main function of the github action.
+ */
+async function run(){
+  const apiKey = getInput("api-key", {required: true});
+  const labelsInput = getInput("labels", {required: true});
+
+  const artifact = new DefaultArtifactClient();
+
+  const apiUrl = "https://api.aiva.works/v1/batches";
+  const aivaBatchUrl = "https://app.aiva.works/scheduling/";
+  const batchStatusFilepath = "./batch-ctrf.json";
+  const labels = parseLabels(labelsInput);
+  const batchWaitTimeout = 30;
+
+  setSecret(apiKey);
+
+  const batchId = executeBatch(apiUrl, apiKey, labels);
+  summary.addLink("See the batch results in AIVA. ", aivaBatchUrl + batchId);
+
+  let batchStatus = null;
   do {
     info("Waiting for test batch to finish.");
-    await sleep(30);
-    const res = await fetch(apiUrl + "/" + batchID, {
-      method: "GET",
-      headers: {
-        "Accept": "application/json",
-        "X-API-Key": apiKey,
-      },
-    });
+    await sleep(batchWaitTimeout);
+    batchStatus = getBatchStatus(apiUrl, apiKey, batchId);
+  } while (testBatchStillRunning(batchStatus));
 
-    const batchStatusResText= await res.text();
-    info(batchStatusResText);
-    batchStatusJSON = JSON.parse(batchStatusResText);
-    info(batchStatusJSON);
-  } while (testBatchStillRunning(batchStatusJSON));
-
-  await writeBatchStatusJsonToFile(batchStatusJSON, batchStatusFilepath);
-
+  await writeBatchStatusJsonToFile(batchStatus, batchStatusFilepath);
   await artifact.uploadArtifact(
       'batch-status',
       [batchStatusFilepath],
       ".",
   );
-  
-  summary.write();
+
+  await summary.write();
 }
 
 run().catch((error) => {

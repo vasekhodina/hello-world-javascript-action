@@ -38,21 +38,15 @@ async function writeBatchStatusJsonToFile(batchStatusJSON, batchStatusFilepath) 
   );
 }
 
-async function run() {
-  const apiKey = core.getInput("api-key", { required: true });
-  const labelsInput = core.getInput("labels", { required: true });
-  
-  const artifact = new DefaultArtifactClient()
-
-  const apiUrl = "https://api.aiva.works/v1/batches"
-  const aivaBatchUrl= "https://app.aiva.works/scheduling/"
-  const batchStatusFilepath = "./batch-ctrf.json"
-  const labels = parseLabels(labelsInput);
-
-  core.setSecret(apiKey);
-  
+/**
+ * @param {Request | string | URL} apiUrl
+ * @param {string} apiKey
+ * @param {string[]} labels
+ * @returns {string} batchID of the newly created batch in AIVA
+ */
+async function executeBatch(apiUrl, apiKey, labels) {
   core.info("Executing test batch containing tests labeled with: " + labels);
-  
+
   const res = await fetch(apiUrl, {
     method: "POST",
     headers: {
@@ -67,48 +61,66 @@ async function run() {
     }),
   });
 
-  const responseText = await res.text();
-
-  core.setOutput("status-code", String(res.status));
-  core.setOutput("response-body", responseText);
-  const response = JSON.parse(responseText);
-  const batchID = await res.json()["testBatchId"];
-
   core.info(`AIVA batch request accepted (${res.status})`);
-  if (responseText) {
-    core.info(responseText);
-  }
-  core.summary.addLink("See the batch results in AIVA. ", aivaBatchUrl + batchID);
 
-  let batchStatusJSON = null;
-  let batchStatusResText= null;
-  
+  const responseJSON = await res.json();
+  return responseJSON["testBatchId"];
+}
+
+/**
+ * @param {string} apiUrl
+ * @param {string} apiKey
+ * @param {string} batchId
+ */
+async function getBatchStatus(apiUrl, apiKey, batchId) {
+  const res = await fetch(apiUrl + "/" + batchId, {
+    method: "GET",
+    headers: {
+      "Accept": "application/json",
+      "X-API-Key": apiKey,
+    },
+  });
+  const batchStatus= await res.json();
+  core.info(batchStatus);
+  core.summary.addCodeBlock(batchStatus, 'json');
+  return batchStatus;
+}
+
+/**
+ * Main function of the github action.
+ */
+async function run(){
+  const apiKey = core.getInput("api-key", {required: true});
+  const labelsInput = core.getInput("labels", {required: true});
+
+  const artifact = new DefaultArtifactClient()
+
+  const apiUrl = "https://api.aiva.works/v1/batches"
+  const aivaBatchUrl = "https://app.aiva.works/scheduling/"
+  const batchStatusFilepath = "./batch-ctrf.json"
+  const labels = parseLabels(labelsInput);
+  const batchWaitTimeout = 30
+
+  core.setSecret(apiKey);
+
+  const batchId = executeBatch(apiUrl, apiKey, labels)
+  core.summary.addLink("See the batch results in AIVA. ", aivaBatchUrl + batchId);
+
+  let batchStatus = null;
   do {
     core.info("Waiting for test batch to finish.")
-    await sleep(30)
-    const res = await fetch(apiUrl + "/" + batchID, {
-      method: "GET",
-      headers: {
-        "Accept": "application/json",
-        "X-API-Key": apiKey,
-      },
-    });
+    await sleep(batchWaitTimeout);
+    batchStatus = getBatchStatus(apiUrl, apiKey, batchId);
+  } while (testBatchStillRunning(batchStatus));
 
-    const batchStatusResText= await res.text();
-    core.info(batchStatusResText);
-    batchStatusJSON = JSON.parse(batchStatusResText);
-    core.info(batchStatusJSON);
-  } while (testBatchStillRunning(batchStatusJSON));
-
-  await writeBatchStatusJsonToFile(batchStatusJSON, batchStatusFilepath);
-
+  await writeBatchStatusJsonToFile(batchStatus, batchStatusFilepath);
   await artifact.uploadArtifact(
       'batch-status',
       [batchStatusFilepath],
       ".",
   )
-  
-  core.summary.write()
+
+  await core.summary.write()
 }
 
 run().catch((error) => {
