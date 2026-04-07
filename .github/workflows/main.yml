@@ -38,11 +38,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-
       - name: Start AIVA batch
         id: aiva
-        uses: aiva-actions/run
+        uses: aiva-actions/run@main
         with:
           apiKey: ${{ inputs.AIVA_API_KEY }}
           labels: ${{ inputs.LABELS}}
