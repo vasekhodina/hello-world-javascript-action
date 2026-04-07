@@ -11,6 +11,26 @@ on:
         description: "Label of the tests that should be run"
         type: string
         default: "" 
+      MAX_NUMBER_OF_AGENTS:
+        description: "Maximum number of AIVA agents that can be used for running tests"
+        type: number
+        default: "" 
+      TEST_NAME:
+        description: "Optional name for the test batch"
+        type: string
+        default: "" 
+      GLOBAL_OVERRIDES: 
+        description: "Overrides variables in all tests"
+        type: string
+        default: "" 
+      OVERRIDES_PER_TEST: 
+        description: "Overrides variables in test specifid by test ID"
+        type: string
+        default: "" 
+      GATEWAY_NAME: 
+        description: "Uses a specified gateway during batch run"
+        type: string
+        default: "" 
 
 jobs:
   aiva_batch_job:
