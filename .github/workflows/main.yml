@@ -40,7 +40,7 @@ jobs:
     steps:
       - name: Start AIVA batch
         id: aiva
-        uses: aiva-actions/run@main
+        uses: aiva-actions/run@initial-customization
         with:
           apiKey: ${{ inputs.AIVA_API_KEY }}
           labels: ${{ inputs.LABELS}}
