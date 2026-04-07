@@ -22,10 +22,16 @@ jobs:
 
       - name: Start AIVA batch
         id: aiva
-        uses: ./
+        uses: aiva-actions/run
         with:
-          api-key: ${{ inputs.AIVA_API_KEY }}
+          apiKey: ${{ inputs.AIVA_API_KEY }}
           labels: ${{ inputs.LABELS}}
+          maxNumberOfAgents: ${{ inputs.MAX_NUMBER_OF_AGENTS }}
+          testName: ${{ inputs.TEST_NAME }}
+          globalVariableOverrides: ${{ inputs.GLOBAL_OVERRIDES }}
+          variableOverridesPerTest: ${{ inputs.OVERRIDES_PER_TEST }}
+          gatewayName: ${{ inputs.GATEWAY_NAME }}
+          
 
       - name: Show API response
         run: |
