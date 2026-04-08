@@ -42,7 +42,7 @@ jobs:
         id: aiva
         uses: aiva-actions/run@initial-customization
         with:
-          apiKey: ${{ inputs.AIVA_API_KEY }}
+          apiKey: ${{ secrets.APIKEY }}
           labels: ${{ inputs.LABELS}}
           maxNumberOfAgents: ${{ inputs.MAX_NUMBER_OF_AGENTS }}
           testName: ${{ inputs.TEST_NAME }}
