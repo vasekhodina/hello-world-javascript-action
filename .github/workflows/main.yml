@@ -3,10 +3,6 @@ name: Run AIVA Test Batch
 on:
   workflow_dispatch:
     inputs:
-      AIVA_API_KEY:
-        description: "API Key for your account from AIVA"
-        type: string
-        default: ""
       LABELS:
         description: "Label of the tests that should be run"
         type: string
