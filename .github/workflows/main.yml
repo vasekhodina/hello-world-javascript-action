@@ -45,9 +45,10 @@ jobs:
           globalVariableOverrides: ${{ inputs.GLOBAL_OVERRIDES }}
           variableOverridesPerTest: ${{ inputs.OVERRIDES_PER_TEST }}
           gatewayName: ${{ inputs.GATEWAY_NAME }}
-          
 
-      - name: Show API response
-        run: |
-          echo "HTTP status: ${{ steps.aiva.outputs.status-code }}"
-          echo "Body: ${{ steps.aiva.outputs.response-body }}"
+      - name:
+          id: summary
+          uses: ctrf-io/github-test-reporter@v1.0.28
+        with:
+          report-path: 'batch-ctrf.json'
+        if: always()
