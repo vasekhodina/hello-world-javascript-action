@@ -47,8 +47,8 @@ jobs:
           gatewayName: ${{ inputs.GATEWAY_NAME }}
 
       - name:
-          id: summary
-          uses: ctrf-io/github-test-reporter@v1.0.28
+        id: summary
+        uses: ctrf-io/github-test-reporter@v1.0.28
         with:
           report-path: 'batch-ctrf.json'
         if: always()
