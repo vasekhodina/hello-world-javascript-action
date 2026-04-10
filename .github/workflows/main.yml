@@ -51,7 +51,10 @@ jobs:
           globalVariableOverrides: ${{ inputs.GLOBAL_OVERRIDES }}
           variableOverridesPerTest: ${{ inputs.OVERRIDES_PER_TEST }}
           gatewayName: ${{ inputs.GATEWAY_NAME }}
-
+      - run: |
+          echo "$GITHUB_WORKSPACE"
+          pwd
+          ls -la
       - name: Generate CTRF summary
         id: summary
         uses: ctrf-io/github-test-reporter@v1.0.28
@@ -60,7 +63,4 @@ jobs:
           template-path: 'summary-template.hbs'
           custom-report: true
         if: always()
-      - run: |
-          echo "$GITHUB_WORKSPACE"
-          pwd
-          ls -la
+
