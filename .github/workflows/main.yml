@@ -60,3 +60,7 @@ jobs:
           template-path: 'summary-template.hbs'
           custom-report: true
         if: always()
+      - run: |
+          echo "$GITHUB_WORKSPACE"
+          pwd
+          ls -la
