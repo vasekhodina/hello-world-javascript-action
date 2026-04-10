@@ -38,7 +38,8 @@ jobs:
         id: checkout
         uses: actions/checkout@v6
         with:
-          repository: aiva-actions/run@initial-customization
+          repository: aiva-actions/run
+          ref: initial-customization
 
       - name: Start AIVA batch
         id: aiva
