@@ -63,5 +63,4 @@ jobs:
           report-path: 'batch-ctrf.json'
           template-path: 'summary-template.hbs'
           custom-report: true
-        if: always()
 
