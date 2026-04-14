@@ -26,7 +26,15 @@ on:
       GATEWAY_NAME: 
         description: "Uses a specified gateway during batch run"
         type: string
-        default: "" 
+        default: ""
+      POLL_PERIOD:
+        description: "How often to repeat the AIVA call for batch status"
+        type: number
+        default: 10
+      REPORT_FILEPATH:
+        description: "Path to report from batch run."
+        type: string
+        default: "./batch-ctrf.json"
 
 jobs:
   aiva_batch_job:
@@ -52,15 +60,13 @@ jobs:
           globalVariableOverrides: ${{ inputs.GLOBAL_OVERRIDES }}
           variableOverridesPerTest: ${{ inputs.OVERRIDES_PER_TEST }}
           gatewayName: ${{ inputs.GATEWAY_NAME }}
-      - run: |
-          echo "$GITHUB_WORKSPACE"
-          pwd
-          ls -la
+          pollPeriodSeconds: ${{ inputs.POLL_PERIOD }}
+          reportFilePath: ${{ inputs.REPORT_FILEPATH }}
       - name: Generate CTRF summary
         id: summary
         uses: ctrf-io/github-test-reporter@v1.0.28
         with:
-          report-path: 'batch-ctrf.json'
+          report-path: ${{ inputs.REPORT_FILEPATH }}
           template-path: 'summary-template.hbs'
           custom-report: true
 
