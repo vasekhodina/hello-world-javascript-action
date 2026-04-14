@@ -69,4 +69,5 @@ jobs:
           report-path: ${{ inputs.REPORT_FILEPATH }}
           template-path: 'summary-template.hbs'
           custom-report: true
+        if: always()
 
