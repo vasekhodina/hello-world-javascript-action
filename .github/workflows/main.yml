@@ -42,13 +42,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      #- name: checkout
-      #  id: checkout
-      #  uses: actions/checkout@v6
-      #  with:
-      #    repository: aiva-actions/run
-      #    ref: initial-customization
-          
       - name: Start AIVA batch
         id: aiva
         uses: aiva-actions/run@initial-customization
@@ -66,11 +59,6 @@ jobs:
       - name: Download Summary template
         id: template-download
         run: wget https://raw.githubusercontent.com/aiva-actions/run/refs/heads/initial-customization/summary-template.hbs -O ./summary-template.hbs
-
-
-      - name: ls
-        id: show
-        run: ls -lha
         
       - name: Generate CTRF summary
         id: summary
