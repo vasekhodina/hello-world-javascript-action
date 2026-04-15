@@ -56,9 +56,15 @@ jobs:
           pollPeriodSeconds: ${{ inputs.POLL_PERIOD }}
           reportFilePath: ${{ inputs.REPORT_FILEPATH }}
 
-      - name: Download Summary template
-        id: template-download
-        run: wget https://github.com/aiva-actions/run/blob/initial-customization/summary-template.hbs -O ./summary-template.hbs
+      #- name: Download Summary template
+      #  id: template-download
+      #  run: wget https://github.com/aiva-actions/run/blob/initial-customization/summary-template.hbs -O ./summary-template.hbs
+      - name: checkout
+        id: checkout
+        uses: actions/checkout@v6
+        with:
+          repository: aiva-actions/run
+          ref: initial-customization
 
       - name: ls
         id: show
