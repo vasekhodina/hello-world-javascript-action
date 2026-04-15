@@ -42,13 +42,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout aiva-actions/run repo
-        id: checkout
-        uses: actions/checkout@v6
-        with:
-          repository: aiva-actions/run
-          ref: initial-customization
-
       - name: Start AIVA batch
         id: aiva
         uses: aiva-actions/run@initial-customization
@@ -62,6 +55,11 @@ jobs:
           gatewayName: ${{ inputs.GATEWAY_NAME }}
           pollPeriodSeconds: ${{ inputs.POLL_PERIOD }}
           reportFilePath: ${{ inputs.REPORT_FILEPATH }}
+
+      - name: Download Summary template
+        id: template-download
+        run: wget https://github.com/aiva-actions/run/blob/initial-customization/summary-template.hbs .
+        
       - name: Generate CTRF summary
         id: summary
         uses: ctrf-io/github-test-reporter@v1.0.28
