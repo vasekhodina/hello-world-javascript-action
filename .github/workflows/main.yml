@@ -61,7 +61,7 @@ jobs:
         run: wget https://github.com/aiva-actions/run/blob/initial-customization/summary-template.hbs -O ./summary-template.hbs
 
       - name: ls
-        id: show what we downloaded
+        id: show
         run: ls -lha
         
       - name: Generate CTRF summary
