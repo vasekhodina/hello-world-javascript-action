@@ -58,7 +58,7 @@ jobs:
 
       - name: Download Summary template
         id: template-download
-        run: wget https://github.com/aiva-actions/run/blob/initial-customization/summary-template.hbs
+        run: wget https://github.com/aiva-actions/run/blob/initial-customization/summary-template.hbs -O ./summary-template.hbs
         
       - name: Generate CTRF summary
         id: summary
