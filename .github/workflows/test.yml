@@ -1,0 +1,41 @@
+name: Run AIVA Test Batch
+
+on:
+  workflow_dispatch:
+    inputs:
+      TEST_NAME:
+        description: "Optional name for the test batch"
+        type: string
+        default: "One time batch"
+
+jobs:
+  aiva_batch_job:
+    name: Run AIVA batch
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Start AIVA batch
+        id: aiva
+        uses: aiva-actions/run
+        with:
+          apiKey: aiva_FGc6oJpUNrvTCvqEgV2gYorMugXCt7izip52ijczXuhb
+          labels: "github"
+          maxNumberOfAgents: 1
+          testName: ${{ inputs.TEST_NAME }}
+          globalVariableOverrides: ""
+          variableOverridesPerTest: ""
+          gatewayName: ""
+
+      - name: Download Summary template
+        id: template-download
+        run: wget https://raw.githubusercontent.com/aiva-actions/run/refs/heads/main/summary-template.hbs
+        if: always()
+        
+      - name: Generate CTRF summary
+        id: summary
+        uses: ctrf-io/github-test-reporter@v1.0.28
+        with:
+          report-path: './batch-ctrf.json'
+          template-path: 'summary-template.hbs'
+          custom-template: true
+        if: always()
