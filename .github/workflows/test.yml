@@ -21,7 +21,7 @@ jobs:
           apiKey: aiva_FGc6oJpUNrvTCvqEgV2gYorMugXCt7izip52ijczXuhb
           labels: "github"
           maxNumberOfAgents: 1
-          testName: ${{ inputs.TEST_NAME }}
+          batchName: ${{ inputs.TEST_NAME }}
           globalVariableOverrides: "{}"
           variableOverridesPerTest: "{}"
           gatewayName: ""
