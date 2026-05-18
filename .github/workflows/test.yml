@@ -22,8 +22,8 @@ jobs:
           labels: "github"
           maxNumberOfAgents: 1
           testName: ${{ inputs.TEST_NAME }}
-          globalVariableOverrides: ""
-          variableOverridesPerTest: ""
+          globalVariableOverrides: "{}"
+          variableOverridesPerTest: "{}"
           gatewayName: ""
 
       - name: Download Summary template
